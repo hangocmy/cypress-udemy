@@ -23,10 +23,55 @@ describe('API testing with Cypress', () => {
   })
 
 
-  it.only('Verify popular tags are displayed', () => {
+  it('Verify popular tags are displayed', () => {
     cy.get('.tag-list')
       .should('contain', 'cypress')
       .and('contain', 'automation')
       .and('contain', 'testing')
+  })
+
+
+  it.only('API Calls Using Cypress', () => {
+    const userCredentials = {
+      "user": {
+        "email": "artem.bondar16@gmail.com",
+        "password": "CypressTest1"
+      }
+    }
+
+    const bodyRequest = {
+      "article": {
+        "tagList": [],
+        "title": "This is a title 255",
+        "description": "This is a description",
+        "body": "This is a body of the article",
+      }
+    }
+
+    cy.request('POST', 'https://conduit.productionready.io/api/users/login', userCredentials).its('body').then(body => {
+      const token = body.user.token
+      
+      cy.request({
+        method: 'POST',
+        url: 'https://conduit.productionready.io/api/articles',
+        headers: {authorization: `Token ${token}`},
+        body: bodyRequest
+      }).then(response => {
+        expect(response.status).to.equal(200)
+      })
+
+      cy.contains('Global Feed').click()
+      cy.get('.article-preview').first().click()
+      cy.get('.article-actions').contains('Delete Article').click()
+
+
+      cy.request({
+        method: 'GET',
+        headers: {authorization: `Token ${token}`},
+        url: 'https://conduit.productionready.io/api/articles?limit=10&offset=0',
+      }).its('body').then(body => {
+        expect(body.articles[0].title).to.equal('This is a title 255')
+      })
+    })
   })
 })
