@@ -32,13 +32,15 @@ describe('API testing with Cypress', () => {
 
 
   it.only('API Calls Using Cypress', () => {
+    /*
     const userCredentials = {
       "user": {
         "email": "artem.bondar16@gmail.com",
         "password": "CypressTest1"
       }
     }
-
+   */
+  
     const bodyRequest = {
       "article": {
         "tagList": [],
@@ -48,8 +50,10 @@ describe('API testing with Cypress', () => {
       }
     }
 
-    cy.request('POST', 'https://conduit.productionready.io/api/users/login', userCredentials).its('body').then(body => {
-      const token = body.user.token
+    cy.get('@token').then(token => {
+    //cy.request('POST', 'https://conduit.productionready.io/api/users/login', userCredentials).its('body').then(body => {
+      
+      /*const token = body.user.token*/
       
       cy.request({
         method: 'POST',

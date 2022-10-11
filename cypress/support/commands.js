@@ -24,8 +24,31 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 Cypress.Commands.add('loginToApplication', () => {
+  //Login to application using headless authentication,
+  //in order to authenticate headlessly, you will need to grab the token or the token object, whatever it is from your browser, request an authentication.
+  //And inside of this cypress visit, you will have to call on before the event and save the token into the local storage.
+  const userCredentials = {
+    "user":{
+      "email": "artem.bondar16@gmail.com",
+      "password": "CypressTest1"
+    }
+  }
+
+  cy.request('POST', 'https://conduit.productionready.io/api/users/login', userCredentials).its('body').then(body => {
+    const token = body.user.token
+
+    cy.wrap(token).as('token')
+    cy.visit('/', {
+      onBeforeLoad (win) {
+        win.localStorage.setItem('jwtToken', token)
+      }
+    })
+  })
+
+  /*
   cy.visit('/login')
   cy.get('[placeholder="Email"]').type('artem.bondar16@gmail.com')
   cy.get('[placeholder="Password"]').type('CypressTest1')
   cy.get('form').submit()
+  */
 })
